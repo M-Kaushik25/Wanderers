@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Booking — Wanderers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
+</head>
+<body class="antialiased">
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav data-nav class="glass-nav fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:var(--gradient-primary);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5-5 18-4-8-9-5Z"/></svg>
+                    </span>
+                    <span class="text-lg font-display font-bold tracking-tight">WANDERERS</span>
+                </a>
+                <a href="index.html" class="text-sm font-medium px-4 py-2 rounded-full transition hover:bg-white/5 flex items-center gap-1.5" style="color:var(--text-secondary);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-4 pt-28 pb-20">
+        <div data-reveal class="text-center mb-10">
+            <p class="text-xs font-semibold uppercase tracking-widest mb-2" style="color:var(--accent-soft);">One step away</p>
+            <h1 class="font-display text-3xl md:text-4xl font-bold">Complete Your Booking</h1>
+        </div>
+
+        <div data-reveal data-reveal-delay="100" class="glass-strong rounded-2xl overflow-hidden md:flex" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);">
+            <!-- Package Info Side -->
+            <div class="md:w-2/5 p-8 flex flex-col justify-center relative" id="package-details" style="background:rgba(255,255,255,0.02); border-right:1px solid var(--border);">
+                <div class="space-y-3">
+                    <div class="skeleton" style="height:12rem; border-radius:var(--radius-md);"></div>
+                    <div class="skeleton h-3 w-1/2"></div>
+                    <div class="skeleton h-6 w-3/4"></div>
+                    <div class="skeleton h-3 w-full"></div>
+                    <div class="skeleton h-3 w-5/6"></div>
+                </div>
+            </div>
+
+            <!-- Booking Form Side -->
+            <div class="md:w-3/5 p-8">
+                <div id="form-wrap">
+                    <form id="booking-form" class="space-y-5">
+                        <input type="hidden" id="package_id" name="package_id">
+
+                        <div class="field">
+                            <input type="text" id="name" placeholder=" " required autocomplete="name">
+                            <label for="name">Full Name</label>
+                        </div>
+
+                        <div class="field">
+                            <input type="email" id="email" placeholder=" " required autocomplete="email">
+                            <label for="email">Email Address</label>
+                        </div>
+
+                        <div class="field">
+                            <input type="tel" id="phone" placeholder=" " required autocomplete="tel">
+                            <label for="phone">Phone Number</label>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="field field-docked">
+                                <input type="date" id="travel_date" required>
+                                <label for="travel_date">Travel Date</label>
+                            </div>
+                            <div class="field field-docked">
+                                <input type="number" id="passengers" min="1" max="20" value="1" required>
+                                <label for="passengers">Passengers</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="btn btn-primary w-full py-3.5 mt-2" data-magnetic="6">
+                            <span id="submit-label">Confirm Booking</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Success state (hidden until booking succeeds) -->
+                <div id="success-state" class="hidden text-center py-6">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style="background:rgba(52,211,153,0.12);">
+                        <svg id="success-check" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:40; stroke-dashoffset:40; animation: draw-check 600ms var(--ease-out) 150ms forwards;"><path d="M20 6 9 17l-5-5"/></svg>
+                    </div>
+                    <h3 class="font-display text-xl font-semibold mb-2">Booking Confirmed</h3>
+                    <p class="text-sm mb-1" style="color:var(--text-secondary);">Your booking ID is <span id="booking-id-display" class="font-semibold" style="color:var(--text-primary);"></span></p>
+                    <p class="text-sm mb-6" style="color:var(--text-secondary);">We'll reach out shortly to finalize the details.</p>
+                    <a href="index.html" class="btn btn-ghost px-6 py-2.5 text-sm">Return Home</a>
+                </div>
+                <style>@keyframes draw-check { to { stroke-dashoffset: 0; } }</style>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/motion.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const packageId = urlParams.get('package_id');
+            const detailsEl = document.getElementById('package-details');
+
+            if (!packageId) {
+                detailsEl.innerHTML = '<p style="color:var(--danger);">Invalid package selected. Please go back and choose a package.</p>';
+                return;
+            }
+
+            document.getElementById('package_id').value = packageId;
+
+            fetch(`/api/packages/${packageId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const pkg = data.data;
+                    if (!pkg) {
+                        detailsEl.innerHTML = '<p style="color:var(--danger);">Package not found.</p>';
+                        return;
+                    }
+
+                    detailsEl.innerHTML = `
+                        <div class="mb-6 rounded-xl overflow-hidden" style="border-radius:var(--radius-md);">
+                            <img src="${pkg.image_url}" alt="${pkg.title}" class="w-full h-44 object-cover">
+                        </div>
+                        <p class="text-xs uppercase tracking-widest font-semibold mb-2" style="color:var(--accent-soft);">${pkg.destination} &bull; ${pkg.duration_days} Days</p>
+                        <h3 class="font-display text-2xl font-semibold mb-3">${pkg.title}</h3>
+                        <p class="text-sm mb-6" style="color:var(--text-secondary); line-height:1.6;">${pkg.description}</p>
+                        <div class="pt-4" style="border-top:1px solid var(--border);">
+                            <p class="text-xs uppercase tracking-wide" style="color:var(--text-tertiary);">Total price (per person)</p>
+                            <p class="font-display text-3xl font-bold mt-1">$${pkg.price}</p>
+                        </div>
+                    `;
+                    detailsEl.setAttribute('data-reveal', '');
+                    detailsEl.classList.add('is-visible');
+                })
+                .catch(err => {
+                    console.error(err);
+                    detailsEl.innerHTML = '<p style="color:var(--danger);">Could not load package details.</p>';
+                });
+
+            document.getElementById('booking-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const requiredFields = ['name', 'email', 'phone', 'travel_date', 'passengers'];
+                let valid = true;
+                requiredFields.forEach(id => {
+                    const input = document.getElementById(id);
+                    const fieldWrap = input.closest('.field');
+                    if (!input.checkValidity()) {
+                        valid = false;
+                        fieldWrap.classList.add('field-invalid');
+                        setTimeout(() => fieldWrap.classList.remove('field-invalid'), 400);
+                    }
+                });
+                if (!valid) {
+                    window.WM.toast('Please complete all fields correctly.', { type: 'error' });
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submit-btn');
+                const submitLabel = document.getElementById('submit-label');
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.75';
+                const originalLabel = submitLabel.innerHTML;
+                submitLabel.innerHTML = '<span class="spinner"></span> Processing…';
+
+                const payload = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    package_id: document.getElementById('package_id').value,
+                    travel_date: document.getElementById('travel_date').value,
+                    passengers: document.getElementById('passengers').value
+                };
+
+                fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok || data.error) {
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitLabel.innerHTML = originalLabel;
+                        window.WM.toast(data.error || 'Something went wrong. Please try again.', { type: 'error' });
+                        return;
+                    }
+                    document.getElementById('form-wrap').classList.add('hidden');
+                    const successEl = document.getElementById('success-state');
+                    successEl.classList.remove('hidden');
+                    document.getElementById('booking-id-display').textContent = '#' + data.booking_id;
+                    window.WM.toast('Booking successful! We will contact you soon.', { type: 'success' });
+                })
+                .catch(err => {
+                    console.error(err);
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitLabel.innerHTML = originalLabel;
+                    window.WM.toast('Network error — please try again.', { type: 'error' });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

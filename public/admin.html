@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Wanderers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
+    <style>
+        .tab-btn { position: relative; color: var(--text-tertiary); transition: color var(--dur-base) var(--ease-out); }
+        .tab-btn.active { color: var(--text-primary); }
+        table { border-collapse: separate; border-spacing: 0; }
+        thead th { color: var(--text-tertiary); font-weight: 600; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+        tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+        tbody tr:hover { background: rgba(255,255,255,0.03); }
+        tbody td, thead th { border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="ambient-bg">
+        <div class="blob blob-1" style="opacity:0.35;"></div>
+        <div class="blob blob-2" style="opacity:0.3;"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="glass-nav is-scrolled sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:var(--gradient-primary);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5-5 18-4-8-9-5Z"/></svg>
+                    </span>
+                    <span class="font-display font-bold tracking-tight">WANDERERS <span style="color:var(--accent-soft); font-weight:500;">Admin</span></span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <a href="index.html" class="text-sm font-medium px-3.5 py-2 rounded-full transition hover:bg-white/5 hidden sm:inline-block" style="color:var(--text-secondary);">Back to Site</a>
+                    <button id="changePwdBtn" class="text-sm font-medium px-3.5 py-2 rounded-full transition hover:bg-white/5" style="color:var(--text-secondary);">Change Password</button>
+                    <button id="logoutBtn" class="btn btn-danger-ghost text-sm px-4 py-2 ml-1">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Tabs -->
+        <div class="flex mb-10 relative" style="border-bottom:1px solid var(--border);" id="tabs-wrap">
+            <button onclick="switchTab('bookings')" id="tab-bookings" class="tab-btn active whitespace-nowrap py-4 px-1 mr-8 font-medium text-sm">
+                Bookings Management
+            </button>
+            <button onclick="switchTab('packages')" id="tab-packages" class="tab-btn whitespace-nowrap py-4 px-1 font-medium text-sm">
+                Packages Management
+            </button>
+            <span class="underline-indicator" id="tab-indicator"></span>
+        </div>
+
+        <!-- Bookings Section -->
+        <div id="section-bookings" class="block">
+            <div data-reveal-stagger="80" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div data-reveal class="card p-6">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium" style="color:var(--text-tertiary);">Total Bookings</p>
+                        <span class="icon-btn" style="background:rgba(109,107,255,0.1); color:var(--accent-soft); width:2rem; height:2rem;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        </span>
+                    </div>
+                    <p class="font-display text-3xl font-bold" id="stat-total">0</p>
+                </div>
+                <div data-reveal class="card p-6">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium" style="color:var(--text-tertiary);">Pending Status</p>
+                        <span class="icon-btn" style="background:rgba(251,191,36,0.1); color:var(--warning); width:2rem; height:2rem;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </span>
+                    </div>
+                    <p class="font-display text-3xl font-bold" style="color:var(--warning);" id="stat-pending">0</p>
+                </div>
+                <div data-reveal class="card p-6">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium" style="color:var(--text-tertiary);">Revenue Estimate</p>
+                        <span class="icon-btn" style="background:rgba(52,211,153,0.1); color:var(--success); width:2rem; height:2rem;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </span>
+                    </div>
+                    <p class="font-display text-3xl font-bold" style="color:var(--success);" id="stat-revenue">$0</p>
+                </div>
+            </div>
+
+            <div data-reveal class="card overflow-hidden">
+                <div class="px-6 py-5" style="border-bottom:1px solid var(--border);">
+                    <h3 class="font-display font-semibold">Recent Bookings</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left">ID</th>
+                                <th class="px-6 py-3 text-left">User</th>
+                                <th class="px-6 py-3 text-left">Package</th>
+                                <th class="px-6 py-3 text-left">Date &amp; Pax</th>
+                                <th class="px-6 py-3 text-left">Status</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-tbody">
+                            <tr><td colspan="6" class="px-6 py-10 text-center" style="color:var(--text-tertiary);">
+                                <span class="spinner" style="border-top-color:var(--accent-soft);"></span> Loading bookings…
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packages Section -->
+        <div id="section-packages" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-display text-xl font-semibold">Tour Packages</h3>
+                <button onclick="openPackageModal()" data-magnetic="8" class="btn btn-primary text-sm px-4 py-2.5">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Add New Package
+                </button>
+            </div>
+
+            <div data-reveal class="card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left">ID</th>
+                                <th class="px-6 py-3 text-left">Package Name</th>
+                                <th class="px-6 py-3 text-left">Destination</th>
+                                <th class="px-6 py-3 text-left">Duration</th>
+                                <th class="px-6 py-3 text-left">Price</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packages-tbody">
+                            <tr><td colspan="6" class="px-6 py-10 text-center" style="color:var(--text-tertiary);">
+                                <span class="spinner" style="border-top-color:var(--accent-soft);"></span> Loading packages…
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Package Form Modal -->
+    <div id="packageModal" class="modal-backdrop">
+        <div class="modal-panel glass-strong p-8 w-full max-w-2xl" style="border-radius:var(--radius-lg); max-height:90vh; overflow-y:auto;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-display text-xl font-bold" id="pkgModalTitle">Add Package</h2>
+                <button onclick="closePackageModal()" class="icon-btn" style="color:var(--text-tertiary);" aria-label="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="packageForm" class="space-y-5">
+                <input type="hidden" id="pkg_id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="field col-span-2">
+                        <input type="text" id="pkg_title" placeholder=" " required>
+                        <label for="pkg_title">Title</label>
+                    </div>
+                    <div class="field">
+                        <input type="text" id="pkg_dest" placeholder=" " required>
+                        <label for="pkg_dest">Destination</label>
+                    </div>
+                    <div class="field">
+                        <input type="url" id="pkg_img" placeholder=" " required>
+                        <label for="pkg_img">Image URL</label>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="pkg_duration" min="1" placeholder=" " required>
+                        <label for="pkg_duration">Duration (Days)</label>
+                    </div>
+                    <div class="field">
+                        <input type="number" step="0.01" id="pkg_price" min="0" placeholder=" " required>
+                        <label for="pkg_price">Price ($)</label>
+                    </div>
+                    <div class="field col-span-2">
+                        <textarea id="pkg_desc" rows="3" placeholder=" " required></textarea>
+                        <label for="pkg_desc">Description</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full py-3" id="pkg-submit-btn">
+                    <span id="pkg-submit-label">Save Package</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePwdModal" class="modal-backdrop">
+        <div class="modal-panel glass-strong p-8 w-full max-w-md" style="border-radius:var(--radius-lg);">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-display text-xl font-bold">Change Password</h2>
+                <button id="closeModalBtn" class="icon-btn" style="color:var(--text-tertiary);" aria-label="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="changePwdForm" class="space-y-5">
+                <div class="field">
+                    <input type="password" id="oldPassword" placeholder=" " required>
+                    <label for="oldPassword">Old Password</label>
+                </div>
+                <div class="field">
+                    <input type="password" id="newPassword" placeholder=" " required>
+                    <label for="newPassword">New Password</label>
+                </div>
+                <div id="pwd-msg" class="text-sm hidden"></div>
+                <button type="submit" class="btn btn-primary w-full py-3">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/motion.js"></script>
+    <script>
+        // API helpers
+        const apiFetch = async (url, options = {}) => {
+            const res = await fetch(url, options);
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/admin-login.html';
+                throw new Error('Unauthorized');
+            }
+            return res;
+        };
+
+        // Modal open/close helpers (glass modal-backdrop pattern)
+        function openModal(el) { el.classList.add('is-open'); }
+        function closeModal(el) { el.classList.remove('is-open'); }
+
+        // Tabs logic with animated underline
+        function positionIndicator(tab) {
+            const btn = document.getElementById('tab-' + tab);
+            const indicator = document.getElementById('tab-indicator');
+            indicator.style.left = btn.offsetLeft + 'px';
+            indicator.style.width = btn.offsetWidth + 'px';
+        }
+
+        function switchTab(tab) {
+            document.getElementById('section-bookings').classList.toggle('hidden', tab !== 'bookings');
+            document.getElementById('section-packages').classList.toggle('hidden', tab !== 'packages');
+            document.getElementById('tab-bookings').classList.toggle('active', tab === 'bookings');
+            document.getElementById('tab-packages').classList.toggle('active', tab === 'packages');
+            positionIndicator(tab);
+
+            if (tab === 'bookings') loadBookings();
+            if (tab === 'packages') loadPackages();
+        }
+
+        // --- BOOKINGS ---
+        async function loadBookings() {
+            const tbody = document.getElementById('bookings-tbody');
+            try {
+                const res = await apiFetch('/api/admin/bookings');
+                const data = await res.json();
+                tbody.innerHTML = '';
+
+                if (data.data && data.data.length > 0) {
+                    let total = 0, pending = 0, revenue = 0;
+                    data.data.forEach((b, i) => {
+                        total++;
+                        if (b.status === 'Pending') pending++;
+                        if (b.status === 'Approved') revenue += (b.package_price * b.passengers);
+
+                        let statusClass = 'status-pill';
+                        if (b.status === 'Pending') statusClass += ' status-pending';
+                        else if (b.status === 'Approved') statusClass += ' status-approved';
+                        else if (b.status === 'Rejected' || b.status === 'Cancelled') statusClass += ' status-rejected';
+
+                        const row = document.createElement('tr');
+                        row.style.opacity = '0';
+                        row.style.animation = `fade-in-up 500ms var(--ease-out) ${i * 40}ms forwards`;
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--text-tertiary);">#${b.id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium">${b.user_name}</div>
+                                <div class="text-xs" style="color:var(--text-tertiary);">${b.user_email}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm">${b.package_title}</div>
+                                <div class="text-xs" style="color:var(--text-tertiary);">$${b.package_price} / pax</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm">${b.travel_date}</div>
+                                <div class="text-xs" style="color:var(--text-tertiary);">${b.passengers} Pax</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="${statusClass}">${b.status}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick="updateBooking(${b.id}, 'Approved')" class="icon-btn" style="color:var(--success);" title="Approve">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                </button>
+                                <button onclick="updateBooking(${b.id}, 'Rejected')" class="icon-btn" style="color:var(--warning);" title="Reject">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                                <button onclick="deleteBooking(${b.id})" class="icon-btn" style="color:var(--danger);" title="Delete">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    window.WM.animateCount(document.getElementById('stat-total'), total);
+                    window.WM.animateCount(document.getElementById('stat-pending'), pending);
+                    window.WM.animateCount(document.getElementById('stat-revenue'), revenue, { prefix: '$' });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-16 text-center">
+                        <div class="empty-illustration w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:rgba(109,107,255,0.08);">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-soft)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        </div>
+                        <p style="color:var(--text-secondary);">No bookings found yet.</p>
+                    </td></tr>`;
+                    ['stat-total', 'stat-pending'].forEach(id => document.getElementById(id).textContent = '0');
+                    document.getElementById('stat-revenue').textContent = '$0';
+                }
+            } catch (e) {
+                if (e.message !== 'Unauthorized') {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center" style="color:var(--danger);">Failed to load bookings.</td></tr>`;
+                }
+            }
+        }
+
+        async function updateBooking(id, status) {
+            const ok = await window.WM.confirmDialog({
+                title: status === 'Approved' ? 'Approve this booking?' : 'Reject this booking?',
+                message: `Mark booking #${id} as ${status}.`,
+                confirmText: status === 'Approved' ? 'Approve' : 'Reject',
+                danger: status !== 'Approved'
+            });
+            if (!ok) return;
+            await apiFetch(`/api/admin/bookings/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            window.WM.toast(`Booking #${id} marked as ${status}.`, { type: 'success' });
+            loadBookings();
+        }
+
+        async function deleteBooking(id) {
+            const ok = await window.WM.confirmDialog({
+                title: 'Delete booking?',
+                message: `This will permanently delete booking #${id}. This can't be undone.`,
+                confirmText: 'Delete',
+                danger: true
+            });
+            if (!ok) return;
+            await apiFetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
+            window.WM.toast(`Booking #${id} deleted.`, { type: 'success' });
+            loadBookings();
+        }
+
+        // --- PACKAGES ---
+        async function loadPackages() {
+            const tbody = document.getElementById('packages-tbody');
+            try {
+                const res = await fetch('/api/packages');
+                const data = await res.json();
+                tbody.innerHTML = '';
+
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach((p, i) => {
+                        const row = document.createElement('tr');
+                        row.style.opacity = '0';
+                        row.style.animation = `fade-in-up 500ms var(--ease-out) ${i * 40}ms forwards`;
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--text-tertiary);">#${p.id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium">${p.title}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--text-secondary);">${p.destination}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--text-secondary);">${p.duration_days} Days</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--text-secondary);">$${p.price}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick='editPackage(${JSON.stringify(p).replace(/'/g, "\\'")})' class="icon-btn" style="color:var(--accent-soft);" title="Edit">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                </button>
+                                <button onclick="deletePackage(${p.id})" class="icon-btn" style="color:var(--danger);" title="Delete">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-16 text-center">
+                        <div class="empty-illustration w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:rgba(109,107,255,0.08);">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-soft)" stroke-width="1.6"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 1 0-7.65 7.65l8.42 8.42 8.42-8.42a5.4 5.4 0 0 0 0-7.65Z"/></svg>
+                        </div>
+                        <p style="color:var(--text-secondary);">No packages found. Add your first one.</p>
+                    </td></tr>`;
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center" style="color:var(--danger);">Failed to load packages.</td></tr>`;
+            }
+        }
+
+        let packagesMode = 'add';
+        function openPackageModal(pkg = null) {
+            packagesMode = pkg ? 'edit' : 'add';
+            document.getElementById('pkgModalTitle').innerText = pkg ? 'Edit Package' : 'Add Package';
+
+            document.getElementById('pkg_id').value = pkg ? pkg.id : '';
+            document.getElementById('pkg_title').value = pkg ? pkg.title : '';
+            document.getElementById('pkg_dest').value = pkg ? pkg.destination : '';
+            document.getElementById('pkg_duration').value = pkg ? pkg.duration_days : '';
+            document.getElementById('pkg_price').value = pkg ? pkg.price : '';
+            document.getElementById('pkg_img').value = pkg ? pkg.image_url : '';
+            document.getElementById('pkg_desc').value = pkg ? pkg.description : '';
+
+            openModal(document.getElementById('packageModal'));
+        }
+
+        function closePackageModal() {
+            closeModal(document.getElementById('packageModal'));
+            document.getElementById('packageForm').reset();
+        }
+
+        function editPackage(pkg) {
+            openPackageModal(pkg);
+        }
+
+        async function deletePackage(id) {
+            const ok = await window.WM.confirmDialog({
+                title: 'Delete package?',
+                message: `This will permanently delete package #${id}. This can't be undone.`,
+                confirmText: 'Delete',
+                danger: true
+            });
+            if (!ok) return;
+            await apiFetch(`/api/admin/packages/${id}`, { method: 'DELETE' });
+            window.WM.toast(`Package #${id} deleted.`, { type: 'success' });
+            loadPackages();
+        }
+
+        document.getElementById('packageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('pkg_id').value;
+            const payload = {
+                title: document.getElementById('pkg_title').value,
+                destination: document.getElementById('pkg_dest').value,
+                duration_days: document.getElementById('pkg_duration').value,
+                price: document.getElementById('pkg_price').value,
+                image_url: document.getElementById('pkg_img').value,
+                description: document.getElementById('pkg_desc').value,
+            };
+
+            const url = packagesMode === 'edit' ? `/api/admin/packages/${id}` : '/api/admin/packages';
+            const method = packagesMode === 'edit' ? 'PUT' : 'POST';
+
+            const submitBtn = document.getElementById('pkg-submit-btn');
+            const submitLabel = document.getElementById('pkg-submit-label');
+            submitBtn.disabled = true;
+            const original = submitLabel.innerHTML;
+            submitLabel.innerHTML = '<span class="spinner"></span> Saving…';
+
+            try {
+                await apiFetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                closePackageModal();
+                window.WM.toast(packagesMode === 'edit' ? 'Package updated.' : 'Package created.', { type: 'success' });
+                loadPackages();
+            } catch (err) {
+                window.WM.toast('Could not save package.', { type: 'error' });
+            } finally {
+                submitBtn.disabled = false;
+                submitLabel.innerHTML = original;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBookings();
+            positionIndicator('bookings');
+            window.addEventListener('resize', () => {
+                const activeTab = document.getElementById('tab-bookings').classList.contains('active') ? 'bookings' : 'packages';
+                positionIndicator(activeTab);
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                const ok = await window.WM.confirmDialog({ title: 'Log out?', message: 'You will need to sign in again to manage bookings and packages.', confirmText: 'Log Out' });
+                if (!ok) return;
+                await fetch('/api/admin/logout', { method: 'POST' });
+                window.location.href = '/admin-login.html';
+            });
+
+            const pwdModal = document.getElementById('changePwdModal');
+            document.getElementById('changePwdBtn').addEventListener('click', () => openModal(pwdModal));
+            document.getElementById('closeModalBtn').addEventListener('click', () => {
+                closeModal(pwdModal);
+                document.getElementById('pwd-msg').classList.add('hidden');
+                document.getElementById('changePwdForm').reset();
+            });
+            pwdModal.addEventListener('click', (e) => { if (e.target === pwdModal) closeModal(pwdModal); });
+            document.getElementById('packageModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closePackageModal(); });
+
+            document.getElementById('changePwdForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const msgDiv = document.getElementById('pwd-msg');
+                try {
+                    const res = await fetch('/api/admin/change-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            oldPassword: document.getElementById('oldPassword').value,
+                            newPassword: document.getElementById('newPassword').value
+                        })
+                    });
+                    const data = await res.json();
+                    msgDiv.classList.remove('hidden');
+                    if (res.ok) {
+                        msgDiv.style.color = 'var(--success)';
+                        msgDiv.innerText = data.message;
+                        window.WM.toast(data.message || 'Password updated.', { type: 'success' });
+                        document.getElementById('changePwdForm').reset();
+                        setTimeout(() => closeModal(pwdModal), 1200);
+                    } else {
+                        msgDiv.style.color = 'var(--danger)';
+                        msgDiv.innerText = data.error;
+                    }
+                } catch (err) {
+                    msgDiv.classList.remove('hidden');
+                    msgDiv.style.color = 'var(--danger)';
+                    msgDiv.innerText = 'Network error.';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
