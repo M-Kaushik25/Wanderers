@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: wanderers-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_PATH
+        value: ./wanderers.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@wanderers.com
+      - key: ADMIN_PASSWORD
+        value: admin123

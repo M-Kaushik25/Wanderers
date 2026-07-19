@@ -7,7 +7,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node setup_db.js && node server.js",
     "setup": "node setup_db.js"
   },
   "dependencies": {
