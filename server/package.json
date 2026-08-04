@@ -10,6 +10,7 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
+    "test": "tsx --test src/tests/health.test.ts",
     "setup": "prisma generate && prisma db push"
   },
   "dependencies": {

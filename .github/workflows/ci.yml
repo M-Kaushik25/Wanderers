@@ -26,10 +26,15 @@ jobs:
           cd server && npm install
           cd ../client && npm install
 
-      - name: Check Backend TypeScript Compilation
+      - name: Run Backend Automated Test Suite
         run: |
           cd server
           npx prisma generate
+          npm test
+
+      - name: Check Backend TypeScript Compilation
+        run: |
+          cd server
           npx tsc --noEmit
 
       - name: Check Frontend Build
