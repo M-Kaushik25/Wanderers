@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  name           String
+  role           String          @default("TOURIST") // TOURIST, OPERATOR, ADMIN
+  phone          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  company        Company?
+  bookings       Booking[]
+  reviews        Review[]
+  supportTickets SupportTicket[]
+}
+
+model Company {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  name        String
+  description String?
+  gstNumber   String?
+  licenseUrl  String?
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packages    Package[]
+}
+
+model Package {
+  id           Int      @id @default(autoincrement())
+  companyId    Int
+  title        String
+  description  String
+  destination  String
+  durationDays Int
+  price        Float
+  itinerary    String
+  coverImage   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  reviews      Review[]
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  touristId   Int
+  packageId   Int
+  travelDate  DateTime
+  passengers  Int      @default(1)
+  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  totalAmount Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tourist     User     @relation(fields: [touristId], references: [id], onDelete: Cascade)
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  touristId Int
+  packageId Int
+  rating    Int      @default(5)
+  comment   String?
+  createdAt DateTime @default(now())
+
+  tourist   User     @relation(fields: [touristId], references: [id], onDelete: Cascade)
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  subject   String
+  message   String
+  status    String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

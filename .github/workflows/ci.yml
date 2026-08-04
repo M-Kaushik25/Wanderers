@@ -1,0 +1,38 @@
+name: Wanderers CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Root & Workspace Dependencies
+        run: |
+          npm install
+          cd server && npm install
+          cd ../client && npm install
+
+      - name: Check Backend TypeScript Compilation
+        run: |
+          cd server
+          npx prisma generate
+          npx tsc --noEmit
+
+      - name: Check Frontend Build
+        run: |
+          cd client
+          npm run build

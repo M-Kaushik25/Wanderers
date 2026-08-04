@@ -1,27 +1,15 @@
 {
-  "name": "wanderers-tour-management",
+  "name": "wanderers-root",
   "version": "1.0.0",
-  "description": "Wanderers – Tour Package Management System",
-  "main": "server.js",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "private": true,
   "scripts": {
-    "start": "node setup_db.js && node server.js",
-    "setup": "node setup_db.js"
+    "start": "npm run start --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
   },
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "compression": "^1.8.1",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^17.4.2",
-    "express": "^4.18.2",
-    "express-rate-limit": "^8.5.2",
-    "express-validator": "^7.3.2",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.11.0",
-    "sqlite3": "^5.1.6"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
