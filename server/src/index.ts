@@ -12,6 +12,7 @@ import packageRoutes from './routes/packageRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import companyRoutes from './routes/companyRoutes';
 import supportRoutes from './routes/supportRoutes';
+import reviewRoutes from './routes/reviewRoutes';
 import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'Wanderers API' });
