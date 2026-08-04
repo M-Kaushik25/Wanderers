@@ -26,7 +26,7 @@ const OperatorDashboard = () => {
 
   // Mutations
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) => updateBookingStatus(id, status),
+    mutationFn: ({ id, status }: { id: number; status: any }) => updateBookingStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companyBookings'] });
     },

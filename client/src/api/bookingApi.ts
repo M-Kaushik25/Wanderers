@@ -8,40 +8,66 @@ export interface Booking {
   passengers: number;
   totalAmount: number;
   status: 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
-  package?: {
+  createdAt: string;
+  updatedAt: string;
+  package: {
+    id: number;
     title: string;
-    destination?: string;
+    destination: string;
+    price: number;
+    durationDays: number;
     coverImage?: string;
+    company?: {
+      name: string;
+      isVerified: boolean;
+    };
   };
   tourist?: {
+    id: number;
     name: string;
     email: string;
+    phone?: string;
   };
 }
 
-export interface CreateBookingParams {
-  packageId: number;
-  travelDate: string;
-  passengers: number;
-  totalAmount: number;
-}
-
-export const createBooking = async (data: CreateBookingParams) => {
-  const response = await apiClient.post('/bookings', data);
+export const createBooking = async (
+  packageId: number,
+  travelDate: string,
+  passengers: number = 1
+): Promise<Booking> => {
+  const response = await apiClient.post<Booking>('/bookings', {
+    packageId,
+    travelDate,
+    passengers
+  });
   return response.data;
 };
 
-export const fetchMyBookings = async (): Promise<Booking[]> => {
-  const response = await apiClient.get('/bookings/me');
+export const getMyBookings = async (): Promise<Booking[]> => {
+  const response = await apiClient.get<Booking[]>('/bookings/me');
   return response.data;
 };
 
-export const fetchCompanyBookings = async (): Promise<Booking[]> => {
-  const response = await apiClient.get('/bookings/company');
+export const fetchMyBookings = getMyBookings;
+
+export const getBookingById = async (id: number): Promise<Booking> => {
+  const response = await apiClient.get<Booking>(`/bookings/${id}`);
   return response.data;
 };
 
-export const updateBookingStatus = async (id: number, status: string): Promise<Booking> => {
-  const response = await apiClient.patch(`/bookings/${id}/status`, { status });
+export const getCompanyBookings = async (): Promise<Booking[]> => {
+  const response = await apiClient.get<Booking[]>('/bookings/company');
+  return response.data;
+};
+
+export const fetchCompanyBookings = getCompanyBookings;
+
+export const updateBookingStatus = async (
+  id: number,
+  status: 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED'
+): Promise<Booking> => {
+  const response = await apiClient.patch<Booking>(`/bookings/${id}/status`, {
+    status
+  });
   return response.data;
 };

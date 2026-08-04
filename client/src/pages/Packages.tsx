@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Clock, Star, Loader2, Plane, Plus, X, Calendar, Users, CheckCircle2, ShieldCheck, Edit3, Trash2 } from 'lucide-react';
+import { MapPin, Clock, Star, Loader2, Plane, Plus, X, ShieldCheck, Edit3, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { fetchPackages, createPackage, updatePackage, deletePackage, type Package } from '../api/packageApi';
-import { createBooking } from '../api/bookingApi';
+import { BookingModal } from '../components/BookingModal';
 
 const Packages = () => {
   const navigate = useNavigate();
@@ -19,7 +19,6 @@ const Packages = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   // Package Form state
   const [title, setTitle] = useState('');
@@ -30,11 +29,6 @@ const Packages = () => {
   const [description, setDescription] = useState('');
   const [itinerary, setItinerary] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
-
-  // Booking Form state
-  const [travelDate, setTravelDate] = useState('');
-  const [passengers, setPassengers] = useState(1);
-  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Queries
   const { data: packages, isLoading, isError } = useQuery({
@@ -74,16 +68,6 @@ const Packages = () => {
     },
     onError: (err: any) => {
       alert(err.response?.data?.error || 'Failed to delete package');
-    },
-  });
-
-  const bookingMutation = useMutation({
-    mutationFn: createBooking,
-    onSuccess: () => {
-      setBookingSuccess(true);
-    },
-    onError: (err: any) => {
-      setBookingError(err.response?.data?.error || 'Failed to complete booking');
     },
   });
 
@@ -152,22 +136,6 @@ const Packages = () => {
       return;
     }
     setSelectedPackage(pkg);
-    setBookingSuccess(false);
-    setBookingError(null);
-    setTravelDate('');
-    setPassengers(1);
-  };
-
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPackage || !travelDate) return;
-    setBookingError(null);
-    bookingMutation.mutate({
-      packageId: selectedPackage.id,
-      travelDate,
-      passengers,
-      totalAmount: selectedPackage.price * passengers,
-    });
   };
 
   if (isLoading) {
@@ -431,117 +399,10 @@ const Packages = () => {
       {/* Modal 2: Book Package */}
       <AnimatePresence>
         {selectedPackage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 dark:border-slate-700"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">Book Tour</h2>
-                <button
-                  onClick={() => setSelectedPackage(null)}
-                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {bookingSuccess ? (
-                <div className="text-center py-6 space-y-4">
-                  <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto" />
-                  <h3 className="text-2xl font-bold">Booking Confirmed!</h3>
-                  <p className="text-slate-500 text-sm">
-                    Your booking request for <strong>{selectedPackage.title}</strong> has been placed.
-                    The tour operator will confirm your itinerary.
-                  </p>
-                  <button
-                    onClick={() => setSelectedPackage(null)}
-                    className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl mt-4"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleBookingSubmit} className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex items-center space-x-4">
-                    <img
-                      src={selectedPackage.coverImage || 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c'}
-                      alt={selectedPackage.title}
-                      className="w-16 h-16 rounded-xl object-cover"
-                    />
-                    <div>
-                      <h4 className="font-bold text-sm line-clamp-1">{selectedPackage.title}</h4>
-                      <p className="text-xs text-slate-400">{selectedPackage.destination}</p>
-                      <p className="text-blue-600 font-bold text-sm mt-1">
-                        ${selectedPackage.price} / person
-                      </p>
-                    </div>
-                  </div>
-
-                  {bookingError && (
-                    <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">
-                      {bookingError}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1 flex items-center">
-                      <Calendar className="w-4 h-4 mr-1 text-blue-500" /> Travel Date
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      min={new Date().toISOString().split('T')[0]}
-                      value={travelDate}
-                      onChange={(e) => setTravelDate(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1 flex items-center">
-                      <Users className="w-4 h-4 mr-1 text-blue-500" /> Number of Passengers
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      required
-                      value={passengers}
-                      onChange={(e) => setPassengers(parseInt(e.target.value) || 1)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex justify-between items-center border border-blue-100 dark:border-blue-900/50 mt-4">
-                    <div>
-                      <p className="text-xs text-slate-500">Total Price</p>
-                      <p className="text-2xl font-bold text-blue-600">
-                        ${selectedPackage.price * passengers}
-                      </p>
-                    </div>
-                    <span className="text-xs text-slate-400">
-                      ({passengers} traveler{passengers > 1 ? 's' : ''})
-                    </span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={bookingMutation.isPending}
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center space-x-2 mt-4"
-                  >
-                    {bookingMutation.isPending ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <span>Confirm Booking</span>
-                    )}
-                  </button>
-                </form>
-              )}
-            </motion.div>
-          </div>
+          <BookingModal
+            pkg={selectedPackage}
+            onClose={() => setSelectedPackage(null)}
+          />
         )}
       </AnimatePresence>
     </div>
